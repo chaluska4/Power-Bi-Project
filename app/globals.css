@@ -1,0 +1,184 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    scroll-padding-top: 7.5rem;
+  }
+
+  body {
+    @apply bg-page font-sans text-base text-ink antialiased;
+    font-size: 16px;
+    line-height: 1.6;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    @apply font-heading font-semibold text-ink;
+    line-height: 1.15;
+  }
+
+  :focus {
+    outline: none;
+  }
+
+  :focus-visible {
+    outline: 3px solid #0f766e;
+    outline-offset: 3px;
+  }
+
+  .on-navy :focus-visible {
+    outline-color: #99f6e4;
+  }
+
+  #main:focus {
+    outline: none;
+  }
+
+  ::selection {
+    background: #99f6e4;
+    color: #0b2545;
+  }
+}
+
+@layer components {
+  .btn {
+    @apply inline-flex min-h-11 items-center justify-center rounded-xl px-4 py-2 text-center text-base font-semibold leading-snug no-underline;
+  }
+
+  .btn-primary {
+    @apply btn bg-teal text-white;
+  }
+
+  .btn-primary:hover {
+    background-color: #0c5f59;
+  }
+
+  .btn-primary-on-navy {
+    @apply btn border-2 border-[#99F6E4] bg-teal text-white;
+  }
+
+  .btn-primary-on-navy:hover {
+    background-color: #0c5f59;
+  }
+
+  .btn-on-navy {
+    @apply btn border-2 border-white bg-transparent text-white;
+  }
+
+  .btn-on-navy:hover {
+    background-color: rgba(255, 255, 255, 0.12);
+  }
+
+  .btn-outline {
+    @apply btn border-2 border-navy bg-white text-navy;
+  }
+
+  .btn-outline:hover {
+    background-color: #f8fafc;
+  }
+}
+
+.skip-link {
+  position: fixed;
+  left: 1rem;
+  top: 1rem;
+  z-index: 90;
+  transform: translateY(-200%);
+  border-radius: 12px;
+  background: #ffffff;
+  color: #0b2545;
+  padding: 0.75rem 1rem;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.skip-link:focus {
+  transform: none;
+}
+
+.viewer-frame {
+  width: min(100%, calc((100svh - 17rem) * 16 / 9));
+  margin-inline: auto;
+  overflow: hidden;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(11, 37, 69, 0.08);
+}
+
+.viewer-frame:fullscreen {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0;
+  background: #0b2545;
+}
+
+.viewer-frame:fullscreen .viewer-stage {
+  width: min(100vw, calc((100vh - 4.5rem) * 16 / 9));
+  height: min(calc(100vh - 4.5rem), calc(100vw * 9 / 16));
+  aspect-ratio: auto;
+}
+
+.page-enter {
+  animation: page-enter 150ms ease;
+}
+
+@keyframes page-enter {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  .page-enter {
+    animation: none;
+  }
+}
+
+@media print {
+  @page {
+    margin: 12mm;
+  }
+
+  header,
+  footer,
+  .no-print,
+  .page-end,
+  .skip-link {
+    display: none !important;
+  }
+
+  html,
+  body {
+    background: #ffffff !important;
+  }
+
+  .viewer-frame {
+    width: 100% !important;
+    overflow: visible !important;
+    border: 0 !important;
+    box-shadow: none !important;
+  }
+
+  .viewer-frame img {
+    width: 100% !important;
+    height: auto !important;
+    print-color-adjust: exact;
+  }
+}
