@@ -11,12 +11,14 @@ export default function Page() {
   const embedUrl = getEmbedUrl();
 
   return (
-    <main id="main" tabIndex={-1} className="mx-auto w-full max-w-[1600px] px-4 pb-10 pt-3">
-      <h1 className="text-balance text-xl leading-tight sm:text-2xl">{site.headline}</h1>
-      <p className="mt-1 truncate text-muted" title={site.description}>
-        {site.description}
-      </p>
-      <div className="mt-3">
+    <main id="main" tabIndex={-1} className="mx-auto w-full max-w-[1600px] px-4 pb-10 pt-2">
+      <div className="flex flex-col gap-1 lg:flex-row lg:items-baseline lg:gap-4">
+        <h1 className="text-xl leading-7 lg:shrink-0">{site.headline}</h1>
+        <p className="text-[15px] leading-6 text-muted lg:min-w-0 lg:truncate" title={site.description}>
+          {site.description}
+        </p>
+      </div>
+      <div className="mt-2">
         <DashboardViewer embedUrl={embedUrl} />
       </div>
       <div className="no-print mt-3 flex flex-wrap gap-3">

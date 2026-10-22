@@ -20,8 +20,8 @@ export function KpiStrip() {
                 />
               ))}
             </span>
-            <span className="font-heading text-2xl font-semibold leading-none">
-              <span className="sr-only">{finding.label}: </span>
+            <span className="font-semibold">{finding.label}</span>
+            <span className="mt-1 font-heading text-2xl font-semibold leading-none">
               {finding.value}
             </span>
             <span className="mt-2">{finding.text}</span>

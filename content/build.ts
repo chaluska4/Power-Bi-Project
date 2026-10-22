@@ -29,7 +29,7 @@ export const build = {
     {
       n: 4,
       title: "Design",
-      body: "One consistent color per company, direct labels instead of legends, zero baselines on bars, titles that state the finding, and alt text on every visual.",
+      body: "One consistent color per company, direct labels on the main charts with small legends only where two series share a chart, zero baselines on bars, titles that state the finding, and alt text on every visual.",
     },
     {
       n: 5,
@@ -48,11 +48,11 @@ export const build = {
     },
     {
       choice: "Direct labels",
-      why: "The company name sits on the mark, so the reader does not have to match a legend.",
+      why: "Direct labels on the main charts; small legends only where two series share a chart.",
     },
     {
-      choice: "Colorblind-safe palette plus labels",
-      why: "Each company keeps one color, and the label still names it when color is hard to see.",
+      choice: "Color plus labels",
+      why: "Every company is named on its mark, so color is never the only cue.",
     },
     {
       choice: "Single page by rule",

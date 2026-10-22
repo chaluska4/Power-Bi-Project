@@ -19,11 +19,11 @@ export function Findings() {
                 />
               ))}
             </div>
-            <h2 className="text-3xl tracking-tight sm:text-4xl">
-              <span className="sr-only">{finding.label}: </span>
+            <h2 className="text-xl">{finding.label}</h2>
+            <p className="mt-2 font-heading text-3xl font-semibold tracking-tight text-ink sm:text-4xl">
               {finding.value}
-            </h2>
-            <p className="mt-3 flex-1">{finding.text}</p>
+            </p>
+            <p className="mt-2 flex-1">{finding.text}</p>
             <p className="mt-4 text-muted">{finding.source}</p>
           </article>
         ))}

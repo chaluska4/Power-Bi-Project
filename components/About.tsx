@@ -13,7 +13,11 @@ export function About() {
       <div className="min-w-0">
         <h2 className="text-2xl">{about.name}</h2>
         <p className="mt-1 text-muted">{about.subtitle}</p>
-        <p className="mt-4 max-w-prose">{about.bio}</p>
+        {about.bio.map((paragraph) => (
+          <p key={paragraph} className="mt-4 max-w-prose">
+            {paragraph}
+          </p>
+        ))}
         <div className="mt-6 flex flex-wrap gap-3">
           {about.links.map((link) => (
             <NewTabLink key={link.href} href={link.href} className="btn-outline">

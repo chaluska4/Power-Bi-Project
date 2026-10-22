@@ -6,6 +6,7 @@ import {
   useRef,
   useState,
   type PointerEvent as ReactPointerEvent,
+  type ReactNode,
 } from "react";
 import { SafeImage } from "@/components/SafeImage";
 import { submission } from "@/content/submission";
@@ -13,6 +14,7 @@ import { ui } from "@/content/site";
 
 const MIN_SCALE = 1;
 const MAX_SCALE = 4;
+const STEP = 0.25;
 
 function clamp(value: number, min: number, max: number) {
   return Math.min(max, Math.max(min, value));
@@ -29,6 +31,40 @@ function MissingDashboard() {
     </span>
   );
 }
+
+function ToolButton({
+  label,
+  onClick,
+  disabled = false,
+  children,
+}: {
+  label: string;
+  onClick: () => void;
+  disabled?: boolean;
+  children: ReactNode;
+}) {
+  return (
+    <button
+      type="button"
+      aria-label={label}
+      title={label}
+      onClick={onClick}
+      disabled={disabled}
+      className="flex h-10 w-10 items-center justify-center rounded-lg text-white hover:bg-white/15 disabled:opacity-50"
+    >
+      <svg viewBox="0 0 24 24" aria-hidden="true" className="h-5 w-5" fill="none">
+        {children}
+      </svg>
+    </button>
+  );
+}
+
+const stroke = {
+  stroke: "currentColor",
+  strokeWidth: 2,
+  strokeLinecap: "round" as const,
+  strokeLinejoin: "round" as const,
+};
 
 export function DashboardViewer({ embedUrl }: { embedUrl: string | null }) {
   const frameRef = useRef<HTMLDivElement>(null);
@@ -48,12 +84,9 @@ export function DashboardViewer({ embedUrl }: { embedUrl: string | null }) {
     const width = stageRef.current?.clientWidth ?? 0;
     const height = stageRef.current?.clientHeight ?? 0;
     const next = clamp(nextScale, MIN_SCALE, MAX_SCALE);
-    let ox = x;
-    let oy = y;
-    if (next <= 1 || width === 0 || height === 0) {
-      ox = 0;
-      oy = 0;
-    } else {
+    let ox = 0;
+    let oy = 0;
+    if (next > 1 && width > 0 && height > 0) {
       const maxX = ((next - 1) * width) / 2;
       const maxY = ((next - 1) * height) / 2;
       ox = clamp(x, -maxX, maxX);
@@ -64,6 +97,12 @@ export function DashboardViewer({ embedUrl }: { embedUrl: string | null }) {
     setScale(next);
     setOffset({ x: ox, y: oy });
   }, []);
+
+  const zoomBy = useCallback(
+    (delta: number) =>
+      commit(scaleRef.current + delta, offsetRef.current.x, offsetRef.current.y),
+    [commit],
+  );
 
   useEffect(() => {
     function onChange() {
@@ -77,17 +116,17 @@ export function DashboardViewer({ embedUrl }: { embedUrl: string | null }) {
     const node = stageRef.current;
     if (!node || embedUrl) return;
     function onWheel(event: WheelEvent) {
+      // Plain wheel scrolls the page. Trackpad pinch arrives as ctrl + wheel.
+      if (!event.ctrlKey && !event.metaKey) return;
       event.preventDefault();
-      const delta = event.deltaY > 0 ? -0.25 : 0.25;
-      commit(scaleRef.current + delta, offsetRef.current.x, offsetRef.current.y);
+      zoomBy(event.deltaY > 0 ? -STEP : STEP);
     }
     node.addEventListener("wheel", onWheel, { passive: false });
     return () => node.removeEventListener("wheel", onWheel);
-  }, [commit, embedUrl]);
+  }, [embedUrl, zoomBy]);
 
   function onPointerDown(event: ReactPointerEvent<HTMLDivElement>) {
     if (embedUrl || event.button !== 0) return;
-    event.currentTarget.setPointerCapture(event.pointerId);
     pointers.current.set(event.pointerId, { x: event.clientX, y: event.clientY });
     if (pointers.current.size === 2) {
       const [a, b] = [...pointers.current.values()];
@@ -99,6 +138,7 @@ export function DashboardViewer({ embedUrl }: { embedUrl: string | null }) {
       return;
     }
     if (scaleRef.current > 1) {
+      event.currentTarget.setPointerCapture(event.pointerId);
       dragStart.current = {
         x: event.clientX,
         y: event.clientY,
@@ -151,37 +191,38 @@ export function DashboardViewer({ embedUrl }: { embedUrl: string | null }) {
       alt={submission.alt}
       width={3840}
       height={2179}
-      sizes="(min-width: 1600px) 1500px, 100vw"
+      sizes="(min-width: 1600px) 1568px, 100vw"
       draggable={false}
       className="pointer-events-none h-full w-full select-none object-contain"
       fallback={<MissingDashboard />}
     />
   );
 
+  const zoomed = scale > 1;
+
   return (
-    <div
-      ref={frameRef}
-      className="viewer-frame relative bg-white"
-    >
+    <div ref={frameRef} className="viewer-frame relative bg-white">
       {embedUrl ? (
         <>
-          <div className="viewer-stage relative aspect-video print:hidden">
+          <div className="viewer-stage absolute inset-0 print:hidden">
             <iframe
               src={embedUrl}
               title={submission.alt}
-              className="absolute inset-0 h-full w-full border-0"
+              className="h-full w-full border-0"
               allow="fullscreen"
               allowFullScreen
               loading="eager"
               referrerPolicy="strict-origin-when-cross-origin"
             />
           </div>
-          <div className="viewer-stage relative hidden aspect-video print:block">{image}</div>
+          <div className="viewer-stage absolute inset-0 hidden print:block">{image}</div>
         </>
       ) : (
         <div
           ref={stageRef}
-          className="viewer-stage aspect-video w-full touch-none overflow-hidden"
+          className={`viewer-stage absolute inset-0 overflow-hidden ${
+            zoomed ? "cursor-grab touch-none active:cursor-grabbing" : "touch-pan-x touch-pan-y"
+          }`}
           onPointerDown={onPointerDown}
           onPointerMove={onPointerMove}
           onPointerUp={onPointerUp}
@@ -197,41 +238,43 @@ export function DashboardViewer({ embedUrl }: { embedUrl: string | null }) {
           </div>
         </div>
       )}
-      <div className="no-print flex flex-wrap gap-2 border-t border-line bg-white p-2">
+      <div
+        role="toolbar"
+        aria-label={submission.toolbar}
+        className="on-navy no-print absolute right-2 top-2 z-10 flex gap-0.5 rounded-xl bg-navy/85 p-1 shadow-card"
+      >
         {embedUrl ? null : (
           <>
-            <button
-              type="button"
-              className="btn bg-navy text-white"
-              aria-label={submission.zoomOut}
-              onClick={() =>
-                commit(scaleRef.current - 0.25, offsetRef.current.x, offsetRef.current.y)
-              }
+            <ToolButton
+              label={submission.zoomOut}
+              onClick={() => zoomBy(-STEP)}
+              disabled={scale <= MIN_SCALE}
             >
-              −
-            </button>
-            <button
-              type="button"
-              className="btn bg-navy text-white"
-              aria-label={submission.zoomIn}
-              onClick={() =>
-                commit(scaleRef.current + 0.25, offsetRef.current.x, offsetRef.current.y)
-              }
+              <path d="M5 12h14" {...stroke} />
+            </ToolButton>
+            <ToolButton
+              label={submission.zoomIn}
+              onClick={() => zoomBy(STEP)}
+              disabled={scale >= MAX_SCALE}
             >
-              +
-            </button>
-            <button
-              type="button"
-              className="btn bg-navy text-white"
-              onClick={() => commit(1, 0, 0)}
-            >
-              {submission.fit}
-            </button>
+              <path d="M12 5v14M5 12h14" {...stroke} />
+            </ToolButton>
+            <ToolButton label={submission.fit} onClick={() => commit(1, 0, 0)}>
+              <rect x="4" y="6" width="16" height="12" rx="1.5" {...stroke} />
+              <path d="M9 10l-2 2 2 2M15 10l2 2-2 2" {...stroke} />
+            </ToolButton>
           </>
         )}
-        <button type="button" className="btn bg-navy text-white" onClick={toggleFullscreen}>
-          {full ? submission.exitFullscreen : submission.fullscreen}
-        </button>
+        <ToolButton
+          label={full ? submission.exitFullscreen : submission.fullscreen}
+          onClick={toggleFullscreen}
+        >
+          {full ? (
+            <path d="M9 4v5H4M15 4v5h5M9 20v-5H4M15 20v-5h5" {...stroke} />
+          ) : (
+            <path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5" {...stroke} />
+          )}
+        </ToolButton>
       </div>
     </div>
   );

@@ -1,4 +1,9 @@
-import { sources } from "@/content/sources";
+import { NewTabLink } from "@/components/NewTabLink";
+import { sources, TODO_URL } from "@/content/sources";
+
+function hasUrl(url: string) {
+  return url !== TODO_URL && /^https?:\/\//.test(url);
+}
 
 export function Sources() {
   return (
@@ -8,7 +13,18 @@ export function Sources() {
           <h2 className="text-2xl">{sources.sourcesTitle}</h2>
           <ul className="mt-4 list-disc space-y-3 pl-5">
             {sources.items.map((item) => (
-              <li key={item}>{item}</li>
+              <li key={item.label}>
+                {hasUrl(item.url) ? (
+                  <NewTabLink
+                    href={item.url}
+                    className="font-semibold text-teal underline decoration-2 underline-offset-4"
+                  >
+                    {item.label}
+                  </NewTabLink>
+                ) : (
+                  item.label
+                )}
+              </li>
             ))}
           </ul>
         </div>

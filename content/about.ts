@@ -2,8 +2,11 @@ export const about = {
   heading: "About the Creator",
   name: "Colin Haluska",
   subtitle: "Finance and Business Administration, Muhlenberg College, May 2027",
-  /** First person. Edit this paragraph freely. */
-  bio: "I am a Finance and Business Administration senior at Muhlenberg College, graduating in May 2027, and I am pursuing Financial Analyst and FP&A opportunities. I am interested in financial analysis, technology, and financial markets. Most recently I interned at SFG Annuity Advisors, combining financial operations with technology and automation. Previously, at Astro Intelligence Labs, I focused on financial analysis, budgeting, forecasting, reporting, and market research. Outside of work I build finance and software projects with Excel, Python, and SQL, I invest, and I train in the gym. Playing NCAA basketball at Muhlenberg taught me to perform under pressure, manage a demanding schedule alongside academics, and put the team’s goals first. I carry those lessons into Haluska Hoops, where I train middle and high school athletes in basketball, speed, agility, and explosiveness, and teach the discipline, work ethic, and dedication they can carry into school, their careers, and life.",
+  /** First person, two paragraphs, 110 words or fewer in total. */
+  bio: [
+    "I am a Finance and Business Administration senior at Muhlenberg College, graduating in May 2027, and I am pursuing Financial Analyst and FP&A roles. Most recently I interned at SFG Annuity Advisors, combining financial operations with automation. At Astro Intelligence Labs I worked on budgeting, forecasting, reporting, and market research.",
+    "I build finance and software projects in Excel, Python, and SQL. Playing NCAA basketball at Muhlenberg taught me to perform under pressure and put the team first. I carry that into Haluska Hoops, where I train middle and high school athletes in basketball, speed, and agility, along with the discipline and work ethic they can use in school and life.",
+  ],
   headshotAlt: "Portrait of Colin Haluska.",
   links: [
     {
